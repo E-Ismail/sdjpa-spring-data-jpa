@@ -7,15 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author E.I.
@@ -38,20 +39,48 @@ class BookDaoJDBCTemplateTest {
         bookDao = new BookDaoJDBCTemplate(jdbcTemplate);
     }
 
+
+    @Test
+    void testFindAllBooksPageableOne() {
+        List<Book> books = bookDao.findAllBooks(PageRequest.of(0, 10));
+        assertAll("it should return page1 with size 10",
+                () -> assertThat(books).isNotNull(),
+                () ->assertThat(books).hasSize(10) );
+    }
+
+    @Test
+    void testFindAllBooksPageableTwo() {
+        List<Book> books = bookDao.findAllBooks(PageRequest.of(1, 10));
+
+        assertAll("",
+                () ->assertThat(books).isNotNull(),
+                () ->assertThat(books).hasSize(9) );
+    }
+
+
+    @Test
+    void testFindAllBooksPageable10() {
+
+        List<Book> books = bookDao.findAllBooks(PageRequest.of(2, 10));
+        assertThat(books).isNotNull().isEmpty();
+    }
+
     @Test
     void testFindAllBooksPageOne() {
         List<Book> books = bookDao.findAllBooks(10, 0);
 
-        assertThat(books).isNotNull();
-        assertThat(books.size()).isEqualTo(10);
+        assertAll("",
+                () ->assertThat(books).isNotNull(),
+                () ->assertThat(books).hasSize(10) );
     }
 
     @Test
     void testFindAllBooksPageTwo() {
         List<Book> books = bookDao.findAllBooks(10, 10);
 
-        assertThat(books).isNotNull();
-        assertThat(books.size()).isEqualTo(9);
+        assertAll("",
+                () ->  assertThat(books).isNotNull(),
+                () ->assertThat(books).hasSize(9) );
     }
 
 
@@ -60,14 +89,14 @@ class BookDaoJDBCTemplateTest {
         List<Book> books = bookDao.findAllBooks(10, 100);
 
         assertThat(books).isNotNull().isEmpty();
-        assertThat(books.size()).isEqualTo(0);
     }
 
     @Test
     void testFindAllBooks() {
         List<Book> books = bookDao.findAllBooks();
-        assertThat(books).isNotNull();
-        assertThat(books.size()).isGreaterThan(5);
+        assertAll("",
+                () ->assertThat(books).isNotNull(),
+                () -> assertThat(books.size()).isGreaterThan(5) );
     }
 
     @Test
