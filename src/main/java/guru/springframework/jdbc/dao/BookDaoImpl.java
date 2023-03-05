@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Created by jt on 10/23/21.
  */
@@ -17,6 +19,11 @@ public class BookDaoImpl implements BookDao {
 
     public BookDaoImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
+    }
+
+    @Override
+    public List<Book> findAllBooks() {
+        return null;
     }
 
     @Override
