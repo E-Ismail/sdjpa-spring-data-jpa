@@ -32,13 +32,39 @@ class BookDaoJDBCTemplateTest {
     JdbcTemplate jdbcTemplate;
 
     BookDao bookDao;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         bookDao = new BookDaoJDBCTemplate(jdbcTemplate);
     }
 
     @Test
-    void testFindAllBooks(){
+    void testFindAllBooksPageOne() {
+        List<Book> books = bookDao.findAllBooks(10, 0);
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(10);
+    }
+
+    @Test
+    void testFindAllBooksPageTwo() {
+        List<Book> books = bookDao.findAllBooks(10, 10);
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(9);
+    }
+
+
+    @Test
+    void testFindAllBooksPage10() {
+        List<Book> books = bookDao.findAllBooks(10, 100);
+
+        assertThat(books).isNotNull().isEmpty();
+        assertThat(books.size()).isEqualTo(0);
+    }
+
+    @Test
+    void testFindAllBooks() {
         List<Book> books = bookDao.findAllBooks();
         assertThat(books).isNotNull();
         assertThat(books.size()).isGreaterThan(5);
