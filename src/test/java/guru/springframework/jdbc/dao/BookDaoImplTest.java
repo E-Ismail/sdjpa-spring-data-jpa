@@ -1,17 +1,14 @@
 package guru.springframework.jdbc.dao;
 
 import guru.springframework.jdbc.domain.Book;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -19,21 +16,19 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * @author E.I.
+ * <p>
+ * {@code @Date}  3/26/2023
+ */
 @ActiveProfiles("local")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
-class BookDaoJDBCTemplateTest {
-
+class BookDaoImplTest {
+    //Will autowire because BookDaoImpl has @Component and it's the only class with this annotation
     @Autowired
-    JdbcTemplate jdbcTemplate;
-
     BookDao bookDao;
-
-    @BeforeEach
-    void setUp() {
-        bookDao = new BookDaoJDBCTemplate(jdbcTemplate);
-    }
 
     @Test
     void findAllBooksPage1_SortByTitle() {
@@ -98,7 +93,7 @@ class BookDaoJDBCTemplateTest {
 
         assertThat(books).isNotNull();
         assertThat(books.size()).isGreaterThan(5);
-     }
+    }
 
     @Test
     void getById() {
@@ -155,7 +150,7 @@ class BookDaoJDBCTemplateTest {
 
         bookDao.deleteBookById(saved.getId());
 
-        assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(JpaObjectRetrievalFailureException.class, () -> {
             bookDao.getById(saved.getId());
         });
     }

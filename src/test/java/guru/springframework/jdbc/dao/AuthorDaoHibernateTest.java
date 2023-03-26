@@ -1,6 +1,7 @@
 package guru.springframework.jdbc.dao;
 
 import guru.springframework.jdbc.domain.Author;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,27 +10,30 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author E.I.
+ * <p>
+ * {@code @Date}  3/26/2023
+ */
 @ActiveProfiles("local")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
-class AuthorDaoJDBCTemplateTest {
-
+class AuthorDaoHibernateTest {
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    EntityManagerFactory entityManagerFactory;
 
     AuthorDao authorDao;
-
     @BeforeEach
     void setUp() {
-        authorDao = new AuthorDaoJDBCTemplate(jdbcTemplate);
+        authorDao = new AuthorDaoHibernate(entityManagerFactory);
     }
 
     @Test
@@ -65,6 +69,6 @@ class AuthorDaoJDBCTemplateTest {
         List<Author> authors = authorDao.findAllAuthorsByLastName("Smith", PageRequest.of(0, 100));
 
         assertThat(authors).isNotNull();
-        assertThat(authors.size()).isEqualTo(40);
+        assertThat(authors.size()).isEqualTo(81);
     }
 }

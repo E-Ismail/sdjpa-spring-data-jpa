@@ -6,11 +6,8 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 /**
- * @author E.I.
- * <p>
- * {@code @Date}  3/12/2023
+ * Created by jt on 8/23/21.
  */
 public class AuthorMapper implements RowMapper<Author> {
 
@@ -20,6 +17,7 @@ public class AuthorMapper implements RowMapper<Author> {
         author.setId(rs.getLong("id"));
         author.setFirstName(rs.getString("first_name"));
         author.setLastName(rs.getString("last_name"));
+
         return author;
     }
 }

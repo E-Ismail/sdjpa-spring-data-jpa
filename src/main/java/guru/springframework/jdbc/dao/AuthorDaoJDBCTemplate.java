@@ -1,20 +1,15 @@
 package guru.springframework.jdbc.dao;
 
 import guru.springframework.jdbc.domain.Author;
-import guru.springframework.jdbc.domain.Book;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 import java.util.List;
 
 /**
- * @author E.I.
- * <p>
- * {@code @Date}  3/5/2023
+ * Created by jt on 11/26/21.
  */
-
-
 public class AuthorDaoJDBCTemplate implements AuthorDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -23,6 +18,25 @@ public class AuthorDaoJDBCTemplate implements AuthorDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public List<Author> findAllAuthorsByLastName(String lastname, Pageable pageable) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT * FROM author WHERE last_name = ? ");
+
+        if (pageable.getSort().getOrderFor("firstname") != null) {
+            sb.append("order by first_name ").append(pageable.getSort()
+                    .getOrderFor("firstname").getDirection().name());
+        }
+
+        sb.append(" limit ? offset ?");
+
+        return jdbcTemplate.query(sb.toString(), getAuthorMapper(), lastname, pageable.getPageSize(), pageable.getOffset());
+    }
+
+    private AuthorMapper getAuthorMapper() {
+        return new AuthorMapper();
+    }
 
     @Override
     public Author getById(Long id) {
@@ -47,23 +61,5 @@ public class AuthorDaoJDBCTemplate implements AuthorDao {
     @Override
     public void deleteAuthorById(Long id) {
 
-    }
-
-    @Override
-    public List<Author> findAllAuthorsByLastName(String lastName, Pageable pageable) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM author where author.last_name = ? ");
-        if (pageable.getSort().getOrderFor("firstname") != null) {
-            sb.append("order by first_name ")
-                    .append(pageable.getSort()
-                            .getOrderFor("firstname")
-                            .getDirection().name());
-        }
-        sb.append(" limit ? offset ?");
-        return jdbcTemplate.query(sb.toString(), getAuthorMapper(), lastName, pageable.getPageSize(), pageable.getOffset());
-    }
-
-    private AuthorMapper getAuthorMapper() {
-        return new AuthorMapper();
     }
 }

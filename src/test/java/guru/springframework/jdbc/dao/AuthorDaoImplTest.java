@@ -1,7 +1,6 @@
 package guru.springframework.jdbc.dao;
 
 import guru.springframework.jdbc.domain.Author;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -9,28 +8,26 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author E.I.
+ * <p>
+ * {@code @Date}  3/26/2023
+ */
 @ActiveProfiles("local")
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
-class AuthorDaoJDBCTemplateTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class AuthorDaoImplTest {
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
-
     AuthorDao authorDao;
-
-    @BeforeEach
-    void setUp() {
-        authorDao = new AuthorDaoJDBCTemplate(jdbcTemplate);
-    }
 
     @Test
     void findAllAuthorsByLastName() {
@@ -43,7 +40,7 @@ class AuthorDaoJDBCTemplateTest {
     @Test
     void findAllAuthorsByLastNameSortLastNameDesc() {
         List<Author> authors = authorDao.findAllAuthorsByLastName("Smith",
-                PageRequest.of(0, 10, Sort.by(Sort.Order.desc("firstname"))));
+                PageRequest.of(0, 10, Sort.by(Sort.Order.desc("firstName"))));
 
         assertThat(authors).isNotNull();
         assertThat(authors.size()).isEqualTo(10);
@@ -53,7 +50,7 @@ class AuthorDaoJDBCTemplateTest {
     @Test
     void findAllAuthorsByLastNameSortLastNameAsc() {
         List<Author> authors = authorDao.findAllAuthorsByLastName("Smith",
-                PageRequest.of(0, 10, Sort.by(Sort.Order.asc("firstname"))));
+                PageRequest.of(0, 10, Sort.by(Sort.Order.asc("firstName"))));
 
         assertThat(authors).isNotNull();
         assertThat(authors.size()).isEqualTo(10);
@@ -65,6 +62,6 @@ class AuthorDaoJDBCTemplateTest {
         List<Author> authors = authorDao.findAllAuthorsByLastName("Smith", PageRequest.of(0, 100));
 
         assertThat(authors).isNotNull();
-        assertThat(authors.size()).isEqualTo(40);
+        assertThat(authors.size()).isEqualTo(81);
     }
 }
