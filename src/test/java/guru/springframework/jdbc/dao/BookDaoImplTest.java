@@ -1,9 +1,6 @@
 package guru.springframework.jdbc.dao;
 
-import guru.springframework.jdbc.domain.Author;
 import guru.springframework.jdbc.domain.Book;
-import jakarta.persistence.EntityManagerFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -11,37 +8,39 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * @author E.I.
+ * <p>
+ * {@code @Date}  3/26/2023
+ */
 @ActiveProfiles("local")
 @DataJpaTest
-@ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class BookDaoHibernateTest {
-
+@ComponentScan(basePackages = {"guru.springframework.jdbc.dao"})
+class BookDaoImplTest {
+    //Will autowire because BookDaoImpl has @Component and it's the only class with this annotation
     @Autowired
-    EntityManagerFactory emf;
-
     BookDao bookDao;
 
-    @BeforeEach
-    void setUp() {
-        bookDao = new BookDaoHibernate(emf);
-    }
-
     @Test
-    void findAllBooksSortByTitle() {
-        List<Book> books = bookDao.findAllBooksSortByTitle(PageRequest.of(0,10, Sort.by(Sort.Order.desc("title"))));
+    void findAllBooksPage1_SortByTitle() {
+        List<Book> books = bookDao.findAllBooksSortByTitle(PageRequest.of(0, 10,
+                Sort.by(Sort.Order.desc("title"))));
+
         assertThat(books).isNotNull();
         assertThat(books.size()).isEqualTo(10);
     }
 
     @Test
-    void findAllBooks() {
+    void findAllBooksPage1_pageable() {
         List<Book> books = bookDao.findAllBooks(PageRequest.of(0, 10));
 
         assertThat(books).isNotNull();
@@ -49,7 +48,51 @@ class BookDaoHibernateTest {
     }
 
     @Test
+    void findAllBooksPage2_pageable() {
+        List<Book> books = bookDao.findAllBooks(PageRequest.of(1, 10));
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllBooksPage10_pageable() {
+        List<Book> books = bookDao.findAllBooks(PageRequest.of(10, 10));
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(0);
+    }
+
+    @Test
+    void findAllBooksPage1() {
+        List<Book> books = bookDao.findAllBooks(10, 0);
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllBooksPage2() {
+        List<Book> books = bookDao.findAllBooks(10, 10);
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(10);
+    }
+
+    @Test
+    void findAllBooksPage10() {
+        List<Book> books = bookDao.findAllBooks(10, 100);
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(0);
+    }
+
+    @Test
     void testFindAllBooks() {
+        List<Book> books = bookDao.findAllBooks();
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isGreaterThan(5);
     }
 
     @Test
@@ -72,11 +115,8 @@ class BookDaoHibernateTest {
         book.setIsbn("1234");
         book.setPublisher("Self");
         book.setTitle("my book");
-
-        Author author = new Author();
-        author.setId(3L);
-
         book.setAuthorId(1L);
+
         Book saved = bookDao.saveNewBook(book);
 
         assertThat(saved).isNotNull();
@@ -88,10 +128,6 @@ class BookDaoHibernateTest {
         book.setIsbn("1234");
         book.setPublisher("Self");
         book.setTitle("my book");
-
-        Author author = new Author();
-        author.setId(3L);
-
         book.setAuthorId(1L);
         Book saved = bookDao.saveNewBook(book);
 
@@ -105,6 +141,7 @@ class BookDaoHibernateTest {
 
     @Test
     void deleteBookById() {
+
         Book book = new Book();
         book.setIsbn("1234");
         book.setPublisher("Self");
@@ -113,8 +150,8 @@ class BookDaoHibernateTest {
 
         bookDao.deleteBookById(saved.getId());
 
-        Book deleted = bookDao.getById(saved.getId());
-
-        assertThat(deleted).isNull();
+        assertThrows(JpaObjectRetrievalFailureException.class, () -> {
+            bookDao.getById(saved.getId());
+        });
     }
 }
