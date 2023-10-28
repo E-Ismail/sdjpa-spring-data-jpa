@@ -42,9 +42,7 @@ public class DaoIntegrationTest {
 
         bookDao.deleteBookById(saved.getId());
 
-        assertThrows(JpaObjectRetrievalFailureException.class, () -> {
-            bookDao.getById(saved.getId());
-        });
+        assertThrows(JpaObjectRetrievalFailureException.class, () -> bookDao.getById(saved.getId()));
     }
 
     @Test
@@ -60,9 +58,9 @@ public class DaoIntegrationTest {
         Book saved = bookDao.saveNewBook(book);
 
         saved.setTitle("New Book");
-        bookDao.updateBook(saved);
+        Book updated= bookDao.updateBook(saved);
 
-        Book fetched = bookDao.getById(saved.getId());
+        Book fetched = bookDao.getById(updated.getId());
 
         assertThat(fetched.getTitle()).isEqualTo("New Book");
     }
@@ -106,10 +104,7 @@ public class DaoIntegrationTest {
 
         authorDao.deleteAuthorById(saved.getId());
 
-        assertThrows(JpaObjectRetrievalFailureException.class, () -> {
-            Author deleted = authorDao.getById(saved.getId());
-        });
-
+        assertThrows(JpaObjectRetrievalFailureException.class, () -> authorDao.getById(saved.getId()));
     }
 
     @Test
@@ -145,9 +140,8 @@ public class DaoIntegrationTest {
 
     @Test
     void testGetAuthorByNameNotFound() {
-        assertThrows(EntityNotFoundException.class, () -> {
-            Author author = authorDao.findAuthorByName("foo", "bar");
-        });
+        assertThrows(EntityNotFoundException.class, () -> authorDao.findAuthorByName("foo", "bar")
+        );
     }
 
     @Test

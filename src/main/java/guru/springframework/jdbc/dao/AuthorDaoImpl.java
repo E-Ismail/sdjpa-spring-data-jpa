@@ -29,7 +29,7 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author getById(Long id) {
-        return authorRepository.getById(id);
+        return authorRepository.getReferenceById(id);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class AuthorDaoImpl implements AuthorDao {
     @Transactional
     @Override
     public Author updateAuthor(Author author) {
-        Author foundAuthor = authorRepository.getById(author.getId());
+        Author foundAuthor = authorRepository.getReferenceById(author.getId());
         foundAuthor.setFirstName(author.getFirstName());
         foundAuthor.setLastName(author.getLastName());
         return authorRepository.save(foundAuthor);
